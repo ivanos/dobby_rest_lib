@@ -13,7 +13,7 @@
 
 start(_StartType, _StartArgs) ->
     {ok, _} = start_cowboy(),
-    pong = net_adm:ping('dobby@127.0.0.1'),
+%   pong = net_adm:ping('dobby@127.0.0.1'),
     dobby_rest_sup:start_link().
 
 stop(_State) ->
