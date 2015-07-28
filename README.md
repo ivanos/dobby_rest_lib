@@ -1,19 +1,21 @@
 # dobby_rest
 RESTish interface to dobby, the graph store
 
+This repository, dobby_rest_lib, is the implementation of a RESTish
+interface to Dobby which
+can be used as a dependency to build nodes providing a REST interface
+to Dobby.
+https://github.com/ivanos/dobby_rest_node.git runs Dobby REST as a
+standalone service.
+
 ###Requirements
-1. [dobby](https://github.com/shivarammysore/dobby).
+1. [dobby](https://github.com/ivanos/dobby_node).
 2. Erlang R17
 
 ###Building
-1. make compile
-2. make generate
+make compile
 
-###Running
-1. dobby must be running
-2. rel/dobby_rest/bin/dobby_rest console
-
-Note that some request errors are reported to the dobby_rest console. Check the logs if dobby_rest returns status 500 to the REST client.
+Note that some request errors are reported to the console. Check the logs if dobby_rest_lib returns status 500 to the REST client.
 
 ###Testing
 You can use the Google Chrome extension [Postman](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en)
