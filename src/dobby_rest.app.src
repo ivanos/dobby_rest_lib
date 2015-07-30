@@ -7,6 +7,7 @@
                   kernel,
                   stdlib,
                   sasl,
+                  inets,
                   syntax_tools,
                   compiler,
                   jiffy,
