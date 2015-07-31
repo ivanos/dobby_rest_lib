@@ -10,6 +10,9 @@ compile:
 deps:
 	./rebar get-deps
 
+update-deps:
+	./rebar update-deps
+
 eunit: compile
 	./rebar -v skip_deps=true eunit
 
