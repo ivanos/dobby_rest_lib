@@ -280,3 +280,4 @@ two switches (of_switch, linked via a port_of to an of_port, the of_port linked 
 % curl http://localhost:8080/util/clear
 Dobby cleared
 ```
+Note: this functionality works only if the Erlang node includes both dobby_rest_lib and dobby_core_lib.
