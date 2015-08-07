@@ -273,3 +273,10 @@ two switches (of_switch, linked via a port_of to an of_port, the of_port linked 
         ]
 ]
 ```
+
+###Utilities
+*Clear Dobby* -- Removes all the data in dobby.  HTTP GET on `/util/clear`.  Response is `Dobby cleared`.  Example:
+```
+% curl http://localhost:8080/util/clear
+Dobby cleared
+```
