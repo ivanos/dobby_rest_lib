@@ -22,6 +22,7 @@ stop(_State) ->
 start_cowboy() ->
     ok = erl_cowboy:routing(?MODULE, 
         [
+{"/util/clear", dbyr_util_clear, []},
 {"/identifier/:identifier_val", dbyr_identifier_handler, []},
 {"/identifier/:identifier_val/metadata/:property", dbyr_identifier_metadata_handler, []},
 {"/identifier/:identifier_val/search", dbyr_identifier_search_handler, []},
