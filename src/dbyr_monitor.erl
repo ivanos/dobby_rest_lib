@@ -14,7 +14,7 @@ identifier(Identifier, DeliveryFn) ->
                      {max_depth, 1},
                      persistent,
                      {delivery, delivery_fn(DeliveryFn)}],
-    {ok, _SubscriptionId} =
+    {ok, _FirstResult, _SubscriptionId} =
         dby:subscribe(search_fn(), #{}, Identifier, SearchOptions).
 
 unsubscribe(SubscriptionId) ->
