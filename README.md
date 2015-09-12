@@ -33,14 +33,14 @@ standalone service.
 <!-- markdown-toc end -->
 
 
-###Requirements
+#Requirements
 1. [dobby](https://github.com/ivanos/dobby_core_node).
 2. Erlang R17
 
-###Building
+#Building
 To build the application call: `make`.
 
-###Running
+#Running
 dobby must be running. To run `dobby_rest` as an Erlang node use
 [dobby_allinone_node](https://github.com/ivanos/dobby_allinone_node).
 
@@ -54,11 +54,11 @@ pong = net_adm:ping('dobby@127.0.0.1').
 Note that some request errors are reported to the dobby_rest console.
 Check the logs if dobby_rest returns status 500 to the REST client.
 
-###Testing
+#Testing
 You can use the Google Chrome extension [Postman](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en)
 to test the REST calls. Import the dobby_rest.json collection for some examples.
 
-###HTTP response codes
+#HTTP response codes
 
 Response code | Description
 --- | ---
@@ -69,7 +69,7 @@ Response code | Description
 422   | POST request malformed/incomplete
 500   | Server Error
 
-###Identifiers
+#Identifiers
 
 Description | URI | Method | Request Body | Response Body
 --- | --- | --- | --- | ---
@@ -80,7 +80,7 @@ Delete identifier       | /identifier/identifier_name   | `DELETE`  | n/a       
 - In the response object, the identifier value is URL encoded.
 - Deleting a identifier will remove associated links.
 
-####Example 1 - identifier JSON response object:
+##Example 1 - identifier JSON response object:
 
 ```
 {
@@ -100,13 +100,13 @@ Delete identifier       | /identifier/identifier_name   | `DELETE`  | n/a       
 }
 ```
 
-####Example 2 - create identifier JSON request body
+##Example 2 - create identifier JSON request body
 
 ```
 {"metadata":{"key":1,"key2":"2"}}
 ```
 
-###Links
+#Links
 
 Description | URI | Method | Request Body | Response Body
 --- | --- | --- | --- | ---
@@ -117,7 +117,7 @@ delete link     | /link/id1/id2        | `DELETE`  | n/a       | true/false
 - Missing vertices will be created when adding a link.
 - Links are not directed so link names are symmetric. That is idA/idB is the same as idB/idA.
 
-####Example 3 - create link request body
+##Example 3 - create link request body
 
 ```
 {
@@ -127,7 +127,7 @@ delete link     | /link/id1/id2        | `DELETE`  | n/a       | true/false
 }
 ```
 
-####Example 4 - link JSON response object
+##Example 4 - link JSON response object
 
 ```
 {
@@ -141,7 +141,7 @@ delete link     | /link/id1/id2        | `DELETE`  | n/a       | true/false
 }
 ```
 
-###Identifier Metadata
+#Identifier Metadata
 
 Description | URI | Method | Request Body | Response Body
 --- | --- | --- | --- | ---
@@ -149,7 +149,7 @@ get identifier metadata property    | /identifier/identifier_name/metadata/ip   
 add or update identifier metadata             | /identifier/identifier_name/metadata/ip    | `POST`    | "2.2.2.2" | true/false
 remove identifier metadata          | /identifier/identifier_name/metadata/ip    | `DELETE`  | n/a       | true/false
 
-###Link Metadata
+##Link Metadata
 
 Description | URI | Method | Request Body | Response Body
 --- | --- | --- | --- | ---
@@ -157,13 +157,13 @@ get link metadata property          | /link/id1/id2/metadata/creation_datetime  
 add link metadata                   | /link/id1/id2/metadata/key          | `POST`    | "value"   | true/false
 remove link metadata                | /link/id1/id2/metadata/key          | `DELETE`  | n/a       | true/false
 
-###Search
+#Search
 
 Description | URI | Method | Request Body | Response Body
 --- | --- | --- | --- | ---
 search on identifier  | /identifier/vname1%2F2/search    |   `POST`  |   Example 6 | Example 8
 
-###Example 6 - search request JSON body
+##Example 6 - search request JSON body
 ```
 {
   "max_depth":1,
@@ -196,7 +196,7 @@ match_path      | Describes a desired path in the graph to match against. All id
 - The Result is a list of identifiers and links.
 - In the response object, the identifier value and the identifiers in the link value are URL encoded.
 
-###Example 7 - match_path example
+##Example 7 - match_path example
 ```
 {
   "max_depth":10,
@@ -223,7 +223,7 @@ match_path      | Describes a desired path in the graph to match against. All id
 Looks for two different paths. The first path is a connection between
 two switches (of_switch, linked via a port_of to an of_port, the of_port linked via a connected_to to another of_port, linked via a port_of to an of_switch), and between a switch and an endpoint (of_switch linked by an unspecified link type to an of_port linked via a connected_to to an endpoint).
 
-###Example 8 - search response JSON
+##Example 8 - search response JSON
 ```
 [
     {
@@ -274,10 +274,157 @@ two switches (of_switch, linked via a port_of to an of_port, the of_port linked 
 ]
 ```
 
-###Utilities
+#Monitor Identifiers
+Clients can connect to a websocket to monitor identifiers for changes to
+identifiers' metadata and links. The URI of the websocket is
+`/dobby/monitor`. A simple test client is at `/dobby/monitor/test`.
+
+##Starting
+Clients start monitoring Identifiers by sending the following JSON
+command to the websocket.
+```
+{
+    "type":"start",
+    "sequence":"Sequence",
+    "monitor":"identifier",
+    "parameters":{
+        "identifiers":["Identifier", ...]
+    }
+}
+```
+Where `Sequence` is a token used by the client to match responses to requests.
+`Identifier` is an identifier to monitor. Any number of identifiers may
+be listed. You cannot monitor an identifier more than once. A request
+to start a monitor on an already monitored identifier is ignored.
+
+The server responds with:
+```
+{
+    "type":"response",
+    "sequence":"Sequence",
+    "response":{
+        "state":[
+            {
+                "identifier":"Identifier",
+                "metadata":{
+                    "key":{
+                        "value":"Value",
+                        "timestamp":"Timestamp",
+                        "publisher_id":"PublisherId"
+                    } ...
+                },
+                "links":[
+                    {
+                        "link":"End1/End2",
+                        "metadata":{
+                            "key:{
+                                "value":"Value",
+                                "timestamp":"Timestamp",
+                                "publisher_id":"PublisherId"
+                            } ...
+                        }
+                    } ...
+                ]
+            } ...
+        ]
+    }
+}
+```
+Where `Sequence` is the token from the request.
+`state` is the current state of the
+monitored identifiers, listing the identifiers and their metadata,
+and the links to the identifiers.
+
+To stop monitoring Identifiers:
+```
+{
+    "type":"stop",
+    "sequence":"Sequence",
+    "monitor":"identifier",
+    "parameters":{
+        "identifiers":["Identifier", ...]
+    }
+}
+```
+Where `Sequence` is a token used by the client to match responses to requests.
+`Identifier` is an identifier to monitor. Any number of identifiers may
+be listed. A request to stop monitoring on an identifier that is not monitored
+is ignored.
+
+The server responds with:
+```
+{
+    "type":"response",
+    "sequence":"Sequence",
+    "response":"ok"
+}
+```
+
+If the server cannot process a request, it returns an error response:
+```
+{
+    "type":"error",
+    "sequence":"Sequence",
+    "response":{
+        "message":"Message"
+    }
+}
+```
+Where `Message` is a message describing the reason for the error.
+
+After creating the monitor, the server sends messages when the identifiers
+change.
+
+For new or modified identifiers, links, or metadata:
+```
+{
+    "type":"event",
+    "event":"create",
+    "message":{
+        "identifier":"Identifier",
+        "metadata":{
+            "key":{
+                "value":"Value",
+                "timestamp":"Timestamp",
+                "publisher_id":"PublisherId"
+            } ...
+        },
+        "links":[
+            {
+                "link":"End1/End2",
+                "metadata":{
+                    "key:{
+                        "value":"Value",
+                        "timestamp":"Timestamp",
+                        "publisher_id":"PublisherId"
+                    } ...
+                }
+            } ...
+        ]
+    }
+}
+```
+The message may have an identifier, links, or both.
+
+For deleted identifiers or links:
+```
+{
+    "type":"event",
+    "event":"delete",
+    "message":{
+        "identifier":"Identifier",
+        "links":["End1/End2", ... ]
+    }
+}
+```
+The message may have an identifier, links, or both.
+
+
+#Utilities
 *Clear Dobby* -- Removes all the data in dobby.  HTTP GET on `/util/clear`.  Response is `Dobby cleared`.  Example:
 ```
 % curl http://localhost:8080/util/clear
 Dobby cleared
 ```
 Note: this functionality works only if the Erlang node includes both dobby_rest_lib and dobby_core_lib.
+*Simple Monitor Client* -- A simple test client is at `/dobby/monitor/test`.

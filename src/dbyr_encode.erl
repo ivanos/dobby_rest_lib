@@ -15,15 +15,15 @@ metadata_to_json(Metadata) ->
     jiffy:encode(json_metadata(Metadata)).
 
 to_jiffy({Id1, Id2}, Metadata) ->
-    {[
-        {<<"link">>, to_link(Id1, Id2)},
-        {<<"metadata">>, json_metadata(Metadata)}
-    ]};
+    #{
+        <<"link">> => to_link(Id1, Id2),
+        <<"metadata">> => json_metadata(Metadata)
+    };
 to_jiffy(Identifier, Metadata) ->
-    {[
-        {<<"identifier">>, uri_encode(Identifier)},
-        {<<"metadata">>, json_metadata(Metadata)}
-    ]}.
+    #{
+        <<"identifier">> => uri_encode(Identifier),
+        <<"metadata">> => json_metadata(Metadata)
+    }.
 
 uri_encode(B) when is_binary(B) ->
     list_to_binary(http_uri:encode(binary_to_list(B)));
@@ -48,14 +48,6 @@ json_metadata(Data) when is_integer(Data) ->
 json_metadata(Data) when is_binary(Data) ->
     Data;
 json_metadata(Data) when is_list(Data) ->
-    lists:map(
-        fun(Element) ->
-            json_metadata(Element)
-        end, Data);
+    lists:map(fun(Element) -> json_metadata(Element) end, Data);
 json_metadata(Data) when is_map(Data) ->
-    {
-        maps:fold(
-            fun(Key, Value, Acc) ->
-                [{Key, json_metadata(Value)} | Acc]
-            end, [], Data)
-    }.
+    maps:map(fun(_, Value) -> json_metadata(Value) end, Data).
