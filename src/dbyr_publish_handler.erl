@@ -58,7 +58,10 @@ execute_decoded(#{<<"type">> := <<"request">>,
                });
         {error, ErrorMessage} when is_binary(ErrorMessage) ->
             error_reply(Sequence, ErrorMessage)
-    end.
+    end;
+execute_decoded(BadRequest) ->
+    error_reply(maps:get(<<"sequence">>, BadRequest, null),
+                <<"Invalid request">>).
 
 execute_request(create, Params) ->
     case parse_create_params(Params) of
