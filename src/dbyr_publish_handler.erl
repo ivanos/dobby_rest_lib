@@ -88,7 +88,7 @@ error_reply(Sequence, Message) ->
         }
     ).
 
-parse_create_params(Params) ->
+parse_create_params(Params) when is_list(Params) ->
     lists:foldl(
       fun(_, {error, _} = Error) ->
               Error;
@@ -101,4 +101,6 @@ parse_create_params(Params) ->
               {ok, Identifiers, [{Identifier1, Identifier2, Metadata}] ++ Links};
          (Bad, _) ->
               {error, <<"Incorrect create parameter: ", (iolist_to_binary(io_lib:format("~p", [Bad])))/binary>>}
-      end, {ok, [], []}, Params).
+      end, {ok, [], []}, Params);
+parse_create_params(_) ->
+    {error, <<"'params' must be a list">>}.
