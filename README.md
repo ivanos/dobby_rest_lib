@@ -157,6 +157,38 @@ get link metadata property          | /link/id1/id2/metadata/creation_datetime  
 add link metadata                   | /link/id1/id2/metadata/key          | `POST`    | "value"   | true/false
 remove link metadata                | /link/id1/id2/metadata/key          | `DELETE`  | n/a       | true/false
 
+#Publish through websocket
+
+Besides REST requests, clients can publish identifiers, links and
+metadata through websockets.  The URI of the websocket
+is`/dobby/publish`.
+
+##Create or modify entities
+
+To create identifiers and links, or to add metadata entries, send a
+JSON command with `type` set to `request`, `request` set to `create`,
+and a list of objects in `params`:
+
+```
+{
+  "type":"request",
+  "sequence":43,
+  "request":"create",
+  "params": [
+    {"identifier":"foo","metadata":{"bar":43}},
+    {"identifier":"baz","metadata":{"a":"b","c":[1,2,3]}},
+    {"link": ["foo", "baz"], "metadata":{"speed":10}}
+  ]
+}
+```
+
+The `sequence` attribute will be mirrored in the response from the
+server.
+
+The server will respond with a JSON object whose `type` attribute
+tells whether the operation succeded: `response` for success, `error`
+for failure.
+
 #Search
 
 Description | URI | Method | Request Body | Response Body
