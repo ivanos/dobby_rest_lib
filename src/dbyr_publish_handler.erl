@@ -38,7 +38,7 @@ execute(Msg) ->
         DecodedMsg ->
             execute_decoded(DecodedMsg)
     catch
-        error:{N, invalid_json} ->
+        throw:{error, {N, invalid_json}} ->
             error_reply(null, [<<"invalid JSON after ">>,
                                integer_to_binary(N),
                                <<" characters">>])
