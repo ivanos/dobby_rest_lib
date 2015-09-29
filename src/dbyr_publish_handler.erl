@@ -63,7 +63,7 @@ execute_decoded(BadRequest) ->
     error_reply(maps:get(<<"sequence">>, BadRequest, null),
                 <<"Invalid request">>).
 
-execute_request(create, Params) ->
+execute_request(<<"create">>, Params) ->
     case parse_create_params(Params) of
         {ok, Identifiers, Links} ->
             [ok = dbyr_identifier:publish(Identifier, Metadata)
