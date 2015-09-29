@@ -94,11 +94,12 @@ parse_create_params(Params) when is_list(Params) ->
               Error;
          (#{<<"identifier">> := Identifier, <<"metadata">> := Metadata},
           {ok, Identifiers, Links}) when is_binary(Identifier) ->
-              {ok, [{Identifier, Metadata}] ++ Identifiers, Links};
+              {ok, [{Identifier, maps:to_list(Metadata)}] ++ Identifiers, Links};
          (#{<<"link">> := [Identifier1, Identifier2],
             <<"metadata">> := Metadata},
           {ok, Identifiers, Links}) when is_binary(Identifier1), is_binary(Identifier2) ->
-              {ok, Identifiers, [{Identifier1, Identifier2, Metadata}] ++ Links};
+              {ok, Identifiers,
+               [{Identifier1, Identifier2, maps:to_list(Metadata)}] ++ Links};
          (Bad, _) ->
               {error, <<"Incorrect create parameter: ", (iolist_to_binary(io_lib:format("~p", [Bad])))/binary>>}
       end, {ok, [], []}, Params);
