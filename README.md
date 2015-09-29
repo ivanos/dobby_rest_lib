@@ -9,26 +9,32 @@ to Dobby.
 https://github.com/ivanos/dobby_rest_node.git runs Dobby REST as a
 standalone service.
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
 - [dobby_rest](#dobbyrest)
-    - [Building](#building)
-    - [Running](#running)
-    - [Testing](#testing)
-    - [HTTP response codes](#http-response-codes)
-    - [Identifiers](#identifiers)
-        - [Example 1 - identifier JSON response object:](#example-1---identifier-json-response-object)
-        - [Example 2 - create identifier JSON request body](#example-2---create-identifier-json-request-body)
-        - [Links](#links)
-            - [Example 3 - create link request body](#example-3---create-link-request-body)
-            - [Example 4 - link JSON response object](#example-4---link-json-response-object)
-        - [Identifier Metadata](#identifier-metadata)
-        - [Link Metadata](#link-metadata)
-        - [Search](#search)
-        - [Example 6 - search request JSON body](#example-6---search-request-json-body)
-        - [Example 7 - match_path example](#example-7---matchpath-example)
-        - [Example 8 - search response JSON](#example-8---search-response-json)
+- [Requirements](#requirements)
+- [Building](#building)
+- [Running](#running)
+- [Testing](#testing)
+- [HTTP response codes](#http-response-codes)
+- [Identifiers](#identifiers)
+    - [Example 1 - identifier JSON response object:](#example-1---identifier-json-response-object)
+    - [Example 2 - create identifier JSON request body](#example-2---create-identifier-json-request-body)
+- [Links](#links)
+    - [Example 3 - create link request body](#example-3---create-link-request-body)
+    - [Example 4 - link JSON response object](#example-4---link-json-response-object)
+- [Identifier Metadata](#identifier-metadata)
+    - [Link Metadata](#link-metadata)
+- [Publish through websocket](#publish-through-websocket)
+    - [Create or modify entities](#create-or-modify-entities)
+- [Search](#search)
+    - [Example 6 - search request JSON body](#example-6---search-request-json-body)
+    - [Example 7 - match_path example](#example-7---matchpath-example)
+    - [Example 8 - search response JSON](#example-8---search-response-json)
+- [Monitor Identifiers](#monitor-identifiers)
+    - [Starting](#starting)
+- [Utilities](#utilities)
 
 <!-- markdown-toc end -->
 
