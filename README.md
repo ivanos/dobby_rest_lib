@@ -9,26 +9,32 @@ to Dobby.
 https://github.com/ivanos/dobby_rest_node.git runs Dobby REST as a
 standalone service.
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
 - [dobby_rest](#dobbyrest)
-    - [Building](#building)
-    - [Running](#running)
-    - [Testing](#testing)
-    - [HTTP response codes](#http-response-codes)
-    - [Identifiers](#identifiers)
-        - [Example 1 - identifier JSON response object:](#example-1---identifier-json-response-object)
-        - [Example 2 - create identifier JSON request body](#example-2---create-identifier-json-request-body)
-        - [Links](#links)
-            - [Example 3 - create link request body](#example-3---create-link-request-body)
-            - [Example 4 - link JSON response object](#example-4---link-json-response-object)
-        - [Identifier Metadata](#identifier-metadata)
-        - [Link Metadata](#link-metadata)
-        - [Search](#search)
-        - [Example 6 - search request JSON body](#example-6---search-request-json-body)
-        - [Example 7 - match_path example](#example-7---matchpath-example)
-        - [Example 8 - search response JSON](#example-8---search-response-json)
+- [Requirements](#requirements)
+- [Building](#building)
+- [Running](#running)
+- [Testing](#testing)
+- [HTTP response codes](#http-response-codes)
+- [Identifiers](#identifiers)
+    - [Example 1 - identifier JSON response object:](#example-1---identifier-json-response-object)
+    - [Example 2 - create identifier JSON request body](#example-2---create-identifier-json-request-body)
+- [Links](#links)
+    - [Example 3 - create link request body](#example-3---create-link-request-body)
+    - [Example 4 - link JSON response object](#example-4---link-json-response-object)
+- [Identifier Metadata](#identifier-metadata)
+    - [Link Metadata](#link-metadata)
+- [Publish through websocket](#publish-through-websocket)
+    - [Create or modify entities](#create-or-modify-entities)
+- [Search](#search)
+    - [Example 6 - search request JSON body](#example-6---search-request-json-body)
+    - [Example 7 - match_path example](#example-7---matchpath-example)
+    - [Example 8 - search response JSON](#example-8---search-response-json)
+- [Monitor Identifiers](#monitor-identifiers)
+    - [Starting](#starting)
+- [Utilities](#utilities)
 
 <!-- markdown-toc end -->
 
@@ -156,6 +162,38 @@ Description | URI | Method | Request Body | Response Body
 get link metadata property          | /link/id1/id2/metadata/creation_datetime     | `GET`     | n/a       | "2014-07-16T19:20:30+01:00"
 add link metadata                   | /link/id1/id2/metadata/key          | `POST`    | "value"   | true/false
 remove link metadata                | /link/id1/id2/metadata/key          | `DELETE`  | n/a       | true/false
+
+#Publish through websocket
+
+Besides REST requests, clients can publish identifiers, links and
+metadata through websockets.  The URI of the websocket
+is`/dobby/publish`.
+
+##Create or modify entities
+
+To create identifiers and links, or to add metadata entries, send a
+JSON command with `type` set to `request`, `request` set to `create`,
+and a list of objects in `params`:
+
+```
+{
+  "type":"request",
+  "sequence":43,
+  "request":"create",
+  "params": [
+    {"identifier":"foo","metadata":{"bar":43}},
+    {"identifier":"baz","metadata":{"a":"b","c":[1,2,3]}},
+    {"link": ["foo", "baz"], "metadata":{"speed":10}}
+  ]
+}
+```
+
+The `sequence` attribute will be mirrored in the response from the
+server.
+
+The server will respond with a JSON object whose `type` attribute
+tells whether the operation succeded: `response` for success, `error`
+for failure.
 
 #Search
 

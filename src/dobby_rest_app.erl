@@ -30,5 +30,6 @@ start_cowboy() ->
 {"/link/:identifier1/:identifier2/metadata/:property", dbyr_link_metadata_handler, []},
 {"/static/[...]", cowboy_static, {priv_dir, dobby_rest, "static"}},
 {"/dobby/monitor", dbyr_monitor_handler, []},
-{"/dobby/monitor/test/[...]", cowboy_static, {priv_dir, dobby_rest, "static/test"}}
+{"/dobby/monitor/test/[...]", cowboy_static, {priv_dir, dobby_rest, "static/test"}},
+{"/dobby/publish", dbyr_publish_handler, []}
         ]).
