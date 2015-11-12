@@ -315,7 +315,7 @@ two switches (of_switch, linked via a port_of to an of_port, the of_port linked 
 #Monitor Identifiers
 Clients can connect to a websocket to monitor identifiers for changes to
 identifiers' metadata and links. The URI of the websocket is
-`/dobby/monitor`. A simple test client is at `/dobby/monitor/test`.
+`/dobby/monitor`. A simple test client is at `/dobby/monitor/test/index.html`.
 
 ##Starting
 Clients start monitoring Identifiers by sending the following JSON
