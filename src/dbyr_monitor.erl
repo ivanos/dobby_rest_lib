@@ -175,8 +175,9 @@ delta_fn() ->
 delta_metadata(_, Metadata, Metadata) ->
     [];
 delta_metadata(Identifier, _, NewMetadata) ->
-    [#{<<"identifier">> => Identifier,
-      <<"metadata">> => NewMetadata}].
+    monitor_event(<<"create">>,
+        #{<<"identifier">> => Identifier,
+          <<"metadata">> => NewMetadata}).
 
 delta_links(OldLinks, NewLinks) ->
     OldMap = links_map(OldLinks),
@@ -199,7 +200,7 @@ delivery_fn(#{websocket_pid := WebsocketPid}) ->
     fun(Messages) ->
         lists:foreach(
             fun(Message) ->
-                lr_monitor_handler:send(WebsocketPid, jiffy:encode(Message))
+                dbyr_monitor_handler:send(WebsocketPid, jiffy:encode(Message))
             end, Messages),
         ok
     end.
