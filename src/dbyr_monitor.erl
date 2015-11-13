@@ -137,7 +137,7 @@ create_subscriptions(identifier, Identifiers, State) ->
     lists:foldl(
         fun(Identifier, Acc) ->
             {ok, FirstResult, SubscriptionId} =
-                dby:subscribe(search_fn(), [],
+                dby:subscribe(search_fn(), #{},
                     Identifier, SearchOptions),
             [{Identifier, FirstResult, SubscriptionId} | Acc]
         end, [], Identifiers).
@@ -159,7 +159,12 @@ search_fn() ->
 
 delta_fn() ->
     % <<"identifier">> does not change
-    fun(#{<<"identifier">> := Identifier,
+    % Delta function gets #{} as the new identifier data if
+    % the identifier was deleted. This is the starting accumulator
+    % for the search function (see create_subscriptions).
+    fun(#{<<"identifier">> := Identifier}, #{}) ->
+        {delta, deleted_identifier(Identifier)};
+       (#{<<"identifier">> := Identifier,
           <<"metadata">> := OldMetadata,
           <<"links">> := OldLinks},
         #{<<"metadata">> := NewMetadata,
@@ -171,6 +176,9 @@ delta_fn() ->
             _ -> {delta, Messages}
         end
     end.
+
+deleted_identifier(Identifier) ->
+    monitor_event(<<"delete">>, #{<<"identifier">> => Identifier}).
 
 delta_metadata(_, Metadata, Metadata) ->
     [];
@@ -197,13 +205,22 @@ make_map(KeyFn, List) ->
         end, #{}, List).
 
 delivery_fn(#{websocket_pid := WebsocketPid}) ->
-    fun(Messages) ->
+    fun({error, Error}) ->
+        dbyr_monitor_handler:send(WebsocketPid,
+            jiffy:encode(
+                monitor_event(<<"error">>,
+                              #{<<"message">> => format_term(Error)}))),
+        stop;
+       (Messages) ->
         lists:foreach(
             fun(Message) ->
                 dbyr_monitor_handler:send(WebsocketPid, jiffy:encode(Message))
             end, Messages),
         ok
     end.
+
+format_term(Term) ->
+    iolist_to_binary(io_lib:format("~10000000.0p", [Term])).
 
 monitor_start_response(Sequence, ReplyState) ->
     jiffy:encode(
