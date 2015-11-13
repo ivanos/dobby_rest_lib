@@ -457,6 +457,21 @@ For deleted identifiers or links:
 ```
 The message may have an identifier, links, or both.
 
+If the server encounters an error processing the monitors, it sends
+an error event:
+```
+{
+    "type":"event",
+    "event":"error",
+    "message":{
+        "message":"Message"
+    }
+}
+```
+Where `Message` is a message describing the reason for the error. These
+are server error messages which are mostly useful for debugging. When
+the client receives an error event the client should close the
+websocket, reconnect, and recreate the monitors.
 
 #Utilities
 *Clear Dobby* -- Removes all the data in dobby.  HTTP GET on `/util/clear`.  Response is `Dobby cleared`.  Example:
