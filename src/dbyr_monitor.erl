@@ -137,7 +137,7 @@ create_subscriptions(identifier, Identifiers, State) ->
     lists:foldl(
         fun(Identifier, Acc) ->
             {ok, FirstResult, SubscriptionId} =
-                dby:subscribe(search_fn(), #{},
+                dby:subscribe(search_fn(), notfound,
                     Identifier, SearchOptions),
             [{Identifier, FirstResult, SubscriptionId} | Acc]
         end, [], Identifiers).
@@ -159,10 +159,10 @@ search_fn() ->
 
 delta_fn() ->
     % <<"identifier">> does not change
-    % Delta function gets #{} as the new identifier data if
+    % Delta function gets 'notfound' as the new identifier data if
     % the identifier was deleted. This is the starting accumulator
     % for the search function (see create_subscriptions).
-    fun(#{<<"identifier">> := Identifier}, #{}) ->
+    fun(#{<<"identifier">> := Identifier}, notfound) ->
         {delta, deleted_identifier(Identifier)};
        (#{<<"identifier">> := Identifier,
           <<"metadata">> := OldMetadata,
@@ -192,7 +192,9 @@ delta_links(OldLinks, NewLinks) ->
     NewMap = links_map(NewLinks),
     Created = maps:without(maps:keys(OldMap), NewMap),
     Deleted = maps:without(maps:keys(NewMap), OldMap),
-    monitor_create_link(maps:values(Created)) ++
+    CommonLinks = intersect(maps:keys(OldMap), maps:keys(NewMap)),
+    monitor_link_metadata(CommonLinks, OldMap, NewMap) ++
+        monitor_create_link(maps:values(Created)) ++
         monitor_delete_link(maps:keys(Deleted)).
 
 links_map(Links) ->
@@ -212,6 +214,7 @@ delivery_fn(#{websocket_pid := WebsocketPid}) ->
                               #{<<"message">> => format_term(Error)}))),
         stop;
        (Messages) ->
+        ?DEBUG("Monitor: ~p", [Messages]),
         lists:foreach(
             fun(Message) ->
                 dbyr_monitor_handler:send(WebsocketPid, jiffy:encode(Message))
@@ -269,9 +272,42 @@ monitor_delete_link(Links) ->
             <<"links">> => Links
         }).
 
+monitor_link_metadata([], _, _) ->
+    [];
+monitor_link_metadata(Links, OldMap, NewMap) ->
+    LinksInfo = lists:foldl(
+        fun(Link, Acc) ->
+            delta_link_metadata(Link, link_metadata(Link, OldMap),
+                                      link_metadata(Link, NewMap),
+                                Acc)
+        end, [], Links),
+    monitor_link_metadata_event(LinksInfo).
+
+monitor_link_metadata_event([]) ->
+    [];
+monitor_link_metadata_event(LinksInfo) ->
+    monitor_event(<<"create">>,
+        #{
+            <<"links">> => LinksInfo
+        }).
+
+link_metadata(Link, Map) ->
+    maps:get(<<"metadata">>, maps:get(Link, Map)).
+
+delta_link_metadata(_, Metadata, Metadata, Acc) ->
+    Acc;
+delta_link_metadata(Link, _, Metadata, Acc) ->
+    [#{<<"link">> => Link,
+      <<"metadata">> => Metadata} | Acc].
+
 monitor_event(Event, Message) ->
     [#{
         <<"type">> => <<"event">>,
         <<"event">> => Event,
         <<"message">> => Message
     }].
+
+intersect(L1, L2) ->
+    sets:to_list(
+        sets:intersection(
+            sets:from_list(L1), sets:from_list(L2))).
