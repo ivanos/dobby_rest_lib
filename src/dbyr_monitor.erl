@@ -207,20 +207,25 @@ make_map(KeyFn, List) ->
         end, #{}, List).
 
 delivery_fn(#{websocket_pid := WebsocketPid}) ->
-    fun({error, Error}) ->
-        dbyr_monitor_handler:send(WebsocketPid,
-            jiffy:encode(
-                monitor_event(<<"error">>,
-                              #{<<"message">> => format_term(Error)}))),
-        stop;
-       (Messages) ->
-        ?DEBUG("Monitor: ~p", [Messages]),
-        lists:foreach(
-            fun(Message) ->
-                dbyr_monitor_handler:send(WebsocketPid, jiffy:encode(Message))
-            end, Messages),
-        ok
+    fun(Messages) ->
+        send_messages(WebsocketPid, Messages, is_process_alive(WebsocketPid))
     end.
+
+send_messages(_, _, false) ->
+    stop;
+send_messages(WebsocketPid, {error, Error}, true) ->
+    dbyr_monitor_handler:send(WebsocketPid,
+        jiffy:encode(
+            monitor_event(<<"error">>,
+                          #{<<"message">> => format_term(Error)}))),
+    stop;
+send_messages(WebsocketPid, Messages, true) ->
+    ?DEBUG("Monitor: ~p", [Messages]),
+    lists:foreach(
+        fun(Message) ->
+            dbyr_monitor_handler:send(WebsocketPid, jiffy:encode(Message))
+        end, Messages),
+    ok.
 
 format_term(Term) ->
     iolist_to_binary(io_lib:format("~10000000.0p", [Term])).
