@@ -48,7 +48,9 @@ all() ->
      remove_link,
      change_link_metadata,
      delete_link_metadata,
-     add_link_metadata].
+     add_link_metadata,
+     stop_monitor,
+     dead_monitor].
 
 %%%=============================================================================
 %%% Testcases
@@ -73,6 +75,7 @@ create_monitor(_Config) ->
     ?assertEqual(sequence(), maps:get(<<"sequence">>, Reply)),
     [State] = maps:get(<<"state">>, maps:get(<<"response">>, Reply)),
     ?assertEqual(Identifier, maps:get(<<"identifier">>, State)),
+    ?assertEqual(1, length(dby:subscriptions(Identifier))),
 
     stop_ws(WS).
 
@@ -265,6 +268,50 @@ add_link_metadata(_Config) ->
     ?assertEqual(<<"data1">>, metadata_get(<<"key1">>, Metadata)),
 
     stop_ws(WS).
+
+stop_monitor(_Config) ->
+    %% GIVEN
+    Identifiers = identifiers(),
+    Identifier = hd(Identifiers),
+    Graph = graph(),
+    ok = dby:publish(?PUBLISHER_ID, Graph, [persistent]),
+    WS = start_monitor(Identifier),
+
+    %% WHEN
+    stop_ws(WS),
+    timer:sleep(100), % close and cleanup is asynchronous
+
+    %% THEN
+    ?assertEqual(0, length(dby:subscriptions(Identifier))).
+
+dead_monitor(_Config) ->
+    %% GIVEN
+    Identifiers = identifiers(),
+    Identifier = hd(Identifiers),
+    Graph = graph(),
+    ok = dby:publish(?PUBLISHER_ID, Graph, [persistent]),
+    WS = start_monitor(Identifier),
+
+    %% WHEN
+    % a monitor is orphaned, it gets cleaned up the next time
+    % the delivery function is called
+    % orphan the monitor by killing the dbyr_monitor process.
+    % The dbyr_monitor process is responsible for deleting the
+    % subscription. Close the websocket connection to verify that
+    % the subscription is orphaned.
+    [{_, Pid, _, _}] = supervisor:which_children(dbyr_monitor_sup),
+    exit(Pid, kill),
+    timer:sleep(100),
+    ?assertEqual(1, length(dby:subscriptions(Identifier))),
+    stop_ws(WS),
+    timer:sleep(100), % close and cleanup is asynchronous
+    ?assertEqual(1, length(dby:subscriptions(Identifier))),
+
+    ok = dby:publish(?PUBLISHER_ID, {Identifier, [{<<"key2">>,<<"data2">>}]}, [persistent]),
+    timer:sleep(100), % close and cleanup is asynchronous
+
+    %% THEN
+    ?assertEqual(0, length(dby:subscriptions(Identifier))).
 
 %%%=============================================================================
 %%% Internal functions
