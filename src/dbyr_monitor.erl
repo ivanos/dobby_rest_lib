@@ -183,7 +183,7 @@ deleted_identifier(Identifier) ->
 delta_metadata(_, Metadata, Metadata) ->
     [];
 delta_metadata(Identifier, _, NewMetadata) ->
-    monitor_event(<<"create">>,
+    monitor_event(<<"update">>,
         #{<<"identifier">> => Identifier,
           <<"metadata">> => NewMetadata}).
 
@@ -264,7 +264,7 @@ error_reply(Sequence, Message) ->
 monitor_create_link([]) ->
     [];
 monitor_create_link(Links) ->
-    monitor_event(<<"create">>, 
+    monitor_event(<<"update">>, 
         #{
             <<"links">> => Links
         }).
@@ -291,7 +291,7 @@ monitor_link_metadata(Links, OldMap, NewMap) ->
 monitor_link_metadata_event([]) ->
     [];
 monitor_link_metadata_event(LinksInfo) ->
-    monitor_event(<<"create">>,
+    monitor_event(<<"update">>,
         #{
             <<"links">> => LinksInfo
         }).

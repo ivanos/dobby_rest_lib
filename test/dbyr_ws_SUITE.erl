@@ -92,9 +92,9 @@ change_identifier_metadata(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier, [{<<"key1">>,<<"data2">>}]}, [persistent]),
 
     %% THEN
-    {Identifier, Metadata1, _} = recv_event(WS, <<"create">>),
+    {Identifier, Metadata1, _} = recv_event(WS, <<"update">>),
     ?assertEqual(<<"data1">>, metadata_get(<<"key1">>, Metadata1)),
-    {Identifier, Metadata2, _} = recv_event(WS, <<"create">>),
+    {Identifier, Metadata2, _} = recv_event(WS, <<"update">>),
     ?assertEqual(<<"data2">>, metadata_get(<<"key1">>, Metadata2)),
 
     stop_ws(WS).
@@ -112,7 +112,7 @@ delete_identifier_metadata(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier, [{<<"key1">>, delete}]}, [persistent]),
 
     %% THEN
-    {Identifier, Metadata, _} = recv_event(WS, <<"create">>),
+    {Identifier, Metadata, _} = recv_event(WS, <<"update">>),
     ?assertEqual(#{}, Metadata),
 
     stop_ws(WS).
@@ -130,7 +130,7 @@ add_identifier_metadata(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier, [{<<"key2">>,<<"data2">>}]}, [persistent]),
 
     %% THEN
-    {Identifier, Metadata, _} = recv_event(WS, <<"create">>),
+    {Identifier, Metadata, _} = recv_event(WS, <<"update">>),
     ?assertEqual(<<"data2">>, metadata_get(<<"key2">>, Metadata)),
 
     stop_ws(WS).
@@ -161,7 +161,7 @@ create_identifier(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier, [{<<"key1">>,<<"data1">>}]}, [persistent]),
 
     %% THEN
-    {Identifier, Metadata, _} = recv_event(WS, <<"create">>),
+    {Identifier, Metadata, _} = recv_event(WS, <<"update">>),
     ?assertEqual(<<"data1">>, metadata_get(<<"key1">>, Metadata)).
 
 add_link(_Config) ->
@@ -179,7 +179,7 @@ add_link(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier1, Identifier2, []}, [persistent]),
 
     %% THEN
-    {undefined, _, Links} = recv_event(WS, <<"create">>),
+    {undefined, _, Links} = recv_event(WS, <<"update">>),
     [Link] = Links,
     ?assertEqual(LinkString, maps:get(<<"link">>, Link)),
 
@@ -218,7 +218,7 @@ change_link_metadata(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier1, Identifier2, [{<<"key1">>, <<"data2">>}]}, [persistent]),
 
     %% THEN
-    {undefined, _, Links} = recv_event(WS, <<"create">>),
+    {undefined, _, Links} = recv_event(WS, <<"update">>),
     [Link] = Links,
     ?assertEqual(LinkString, maps:get(<<"link">>, Link)),
     Metadata = maps:get(<<"metadata">>, Link),
@@ -240,7 +240,7 @@ delete_link_metadata(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier1, Identifier2, [{<<"key1">>, delete}]}, [persistent]),
 
     %% THEN
-    {undefined, _, Links} = recv_event(WS, <<"create">>),
+    {undefined, _, Links} = recv_event(WS, <<"update">>),
     [Link] = Links,
     ?assertEqual(LinkString, maps:get(<<"link">>, Link)),
     ?assertEqual(#{}, maps:get(<<"metadata">>, Link)),
@@ -261,7 +261,7 @@ add_link_metadata(_Config) ->
     ok = dby:publish(?PUBLISHER_ID, {Identifier1, Identifier2, [{<<"key1">>,<<"data1">>}]}, [persistent]),
 
     %% THEN
-    {undefined, _, Links} = recv_event(WS, <<"create">>),
+    {undefined, _, Links} = recv_event(WS, <<"update">>),
     [Link] = Links,
     ?assertEqual(LinkString, maps:get(<<"link">>, Link)),
     Metadata = maps:get(<<"metadata">>, Link),
