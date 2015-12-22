@@ -417,7 +417,7 @@ For new or modified identifiers, links, or metadata:
 ```
 {
     "type":"event",
-    "event":"create",
+    "event":"update",
     "message":{
         "identifier":"Identifier",
         "metadata":{
